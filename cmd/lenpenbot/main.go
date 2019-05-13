@@ -67,6 +67,21 @@ func main() {
 		case strings.HasPrefix(update.Message.Text, "/start"):
 			msgConf, err = botClient.Start(update.Message)
 			break;
+		case strings.HasPrefix(update.Message.Text, "/reg"):
+			msgConf, err = botClient.Start(update.Message)
+			break;
+		case strings.HasPrefix(update.Message.Text, "/enlarge"):
+			msgConf, err = botClient.Start(update.Message)
+			break;
+		case strings.HasPrefix(update.Message.Text, "/shit"):
+			msgConf, err = botClient.Start(update.Message)
+			break;
+		case strings.HasPrefix(update.Message.Text, "/today"):
+			msgConf, err = botClient.Start(update.Message)
+			break;
+		case strings.HasPrefix(update.Message.Text, "/top"):
+			msgConf, err = botClient.Start(update.Message)
+			break;
 		default:
 			msgConf = pkg.Reply(update.Message, "Неизвестная команда")
 		}
