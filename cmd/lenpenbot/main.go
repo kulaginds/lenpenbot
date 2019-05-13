@@ -1,17 +1,20 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/kulaginds/lenpenbot/internal/app/lenpenbot"
-	"github.com/kulaginds/lenpenbot/pkg"
+	"github.com/kulaginds/lenpenbot/pkg/store/pgstore"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
 
+	"github.com/kulaginds/lenpenbot/internal/app/lenpenbot"
 	"github.com/kulaginds/lenpenbot/internal/config"
+	"github.com/kulaginds/lenpenbot/pkg"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -54,7 +57,14 @@ func main() {
 		updates = longPollMode(cfg, bot)
 	}
 
-	botClient := lenpenbot.NewLenPenBot(bot)
+	dbConn, err := sql.Open("postgres", cfg.GetDatabaseDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	store := pgstore.NewPGStore(dbConn)
+
+	botClient := lenpenbot.NewLenPenBot(bot, store)
 
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates

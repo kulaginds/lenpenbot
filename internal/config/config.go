@@ -25,6 +25,7 @@ type Config struct {
 	ProxyHost     string  `envconfig:"PROXY_HOST"`
 	ProxyUser     string  `envconfig:"PROXY_USER"`
 	ProxyPassword string  `envconfig:"PROXY_PASSWORD"`
+	DatabaseDSN   string  `envconfig:"DATABASE_DSN"`
 }
 
 // MustInitConfig инициализирует и возвращает конфиг иначе при ошибке кидает панику
@@ -106,3 +107,11 @@ func (c *Config) GetProxyUser() string { return c.ProxyUser }
 
 // GetProxyPassword возвращает пароль пользователя прокси
 func (c *Config) GetProxyPassword() string { return c.ProxyPassword }
+
+func (c *Config) GetDatabaseDSN() string {
+	if c.DatabaseDSN == "" {
+		return "postgres://postgres@localhost:5432/postgres?sslmode=disable"
+	}
+
+	return c.DatabaseDSN
+}

@@ -1,9 +1,17 @@
 package lenpenbot
 
-import "github.com/go-telegram-bot-api/telegram-bot-api"
+import (
+	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/kulaginds/lenpenbot/pkg/store"
+)
+
+type BotAPIImplementation interface {
+	Send(c tgbotapi.Chattable) (tgbotapi.Message, error)
+}
 
 type LenPenBot struct {
-	bot *tgbotapi.BotAPI
+	bot   BotAPIImplementation
+	store store.Store
 }
 
 type BotImplementation interface {
@@ -16,6 +24,6 @@ type BotImplementation interface {
 	Credit(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, error)
 }
 
-func NewLenPenBot(bot *tgbotapi.BotAPI) BotImplementation {
-	return &LenPenBot{bot: bot}
+func NewLenPenBot(bot BotAPIImplementation, store store.Store) BotImplementation {
+	return &LenPenBot{bot: bot, store: store}
 }
