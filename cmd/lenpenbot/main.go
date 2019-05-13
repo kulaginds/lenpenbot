@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/kulaginds/lenpenbot/internal/app/lenpenbot"
+	"github.com/kulaginds/lenpenbot/pkg"
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/kulaginds/lenpenbot/internal/config"
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"golang.org/x/net/proxy"
 )
 
 func main() {
@@ -17,24 +19,17 @@ func main() {
 
 	httpClient := &http.Client{}
 
-	if cfg.GetProxyURL() != "" {
-		proxyUrl, err := url.Parse(cfg.GetProxyURL())
+	if cfg.GetProxyHost() != "" {
+		proxyUrl, err := url.Parse(fmt.Sprintf("%s://%s", cfg.GetProxyProtocol(), cfg.GetProxyHost()))
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		password, _ := proxyUrl.User.Password()
-		proxyDialer, err := proxy.SOCKS5("tcp", proxyUrl.Host, &proxy.Auth{
-			User: proxyUrl.User.Username(),
-			Password: password,
-		}, proxy.Direct)
-		if err != nil {
-			log.Fatal(err)
-		}
+		proxyUrl.User = url.UserPassword("order@ruskyhost.ru", "login911##")
 
 		httpClient = &http.Client{
 			Transport: &http.Transport{
-				DialTLS: proxyDialer.Dial,
+				Proxy: http.ProxyURL(proxyUrl),
 			},
 		}
 	}
@@ -59,19 +54,33 @@ func main() {
 		updates = longPollMode(cfg, bot)
 	}
 
+	botClient := lenpenbot.NewLenPenBot(bot)
+
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
 			continue
 		}
 
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
+		var msgConf *tgbotapi.MessageConfig
 
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
+		switch {
+		case strings.HasPrefix(update.Message.Text, "/start"):
+			msgConf, err = botClient.Start(update.Message)
+			break;
+		default:
+			msgConf = pkg.Reply(update.Message, "Неизвестная команда")
+		}
 
-		_, err := bot.Send(msg)
 		if err != nil {
 			log.Println(err)
+			continue
+		}
+
+		if msgConf != nil {
+			_, err := bot.Send(msgConf)
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}
 }

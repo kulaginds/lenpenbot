@@ -21,7 +21,10 @@ type Config struct {
 	BotURL        string  `envconfig:"BOT_URL"`
 	SSLCert       string  `envconfig:"SSL_CERT"`
 	SSLKey        string  `envconfig:"SSL_KEY"`
-	ProxyURL      string  `envconfig:"PROXY_URL"`
+	ProxyProtocol string  `envconfig:"PROXY_PROTOCOL"`
+	ProxyHost     string  `envconfig:"PROXY_HOST"`
+	ProxyUser     string  `envconfig:"PROXY_USER"`
+	ProxyPassword string  `envconfig:"PROXY_PASSWORD"`
 }
 
 // MustInitConfig инициализирует и возвращает конфиг иначе при ошибке кидает панику
@@ -92,5 +95,14 @@ func (c *Config) GetSSLCert() string { return c.SSLCert }
 // GetSSLKey возвращает приватный ключ SSL-сертификата
 func (c *Config) GetSSLKey() string { return c.SSLKey }
 
+// GetProxyProtocol возвращает протокол прокси
+func (c *Config) GetProxyProtocol() string { return c.ProxyProtocol }
+
 // GetProxyURL возвращает url прокси
-func (c *Config) GetProxyURL() string { return c.ProxyURL }
+func (c *Config) GetProxyHost() string { return c.ProxyHost }
+
+// GetProxyUser возвращает пользователя прокси
+func (c *Config) GetProxyUser() string { return c.ProxyUser }
+
+// GetProxyPassword возвращает пароль пользователя прокси
+func (c *Config) GetProxyPassword() string { return c.ProxyPassword }
