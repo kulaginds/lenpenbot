@@ -110,15 +110,20 @@ func main() {
 }
 
 func webhookMode(cfg *config.Config, bot *tgbotapi.BotAPI) (tgbotapi.UpdatesChannel, error) {
-	_, err := bot.SetWebhook(
-		tgbotapi.NewWebhookWithCert(
+	whCfg := tgbotapi.NewWebhook(fmt.Sprintf("%s%s", cfg.GetBotURL(), bot.Token))
+
+	if cfg.GetSSLCert() != "" {
+		whCfg = tgbotapi.NewWebhookWithCert(
 			fmt.Sprintf("%s%s", cfg.GetBotURL(), bot.Token),
 			cfg.GetSSLCert(),
-		),
-	)
+		)
+	}
+
+	_, err := bot.SetWebhook(whCfg)
 	if err != nil {
 		return nil, err
 	}
+
 	info, err := bot.GetWebhookInfo()
 	if err != nil {
 		return nil, err
@@ -127,7 +132,12 @@ func webhookMode(cfg *config.Config, bot *tgbotapi.BotAPI) (tgbotapi.UpdatesChan
 		log.Printf("Telegram callback failed: %s", info.LastErrorMessage)
 	}
 	updates := bot.ListenForWebhook(fmt.Sprintf("/%s", bot.Token))
-	go http.ListenAndServeTLS(cfg.GetAddress(), cfg.GetSSLCert(), cfg.GetSSLKey(), nil)
+
+	if cfg.GetSSLCert() != "" {
+		go http.ListenAndServeTLS(cfg.GetAddress(), cfg.GetSSLCert(), cfg.GetSSLKey(), nil)
+	} else {
+		go http.ListenAndServe(cfg.GetAddress(), nil)
+	}
 
 	return updates, nil
 }
