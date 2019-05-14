@@ -18,7 +18,7 @@ const (
 func (i *LenPenBot) Enlarge(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, error) {
 	isUserRegistered, err := i.store.IsUserRegistered(msg.From.ID, msg.Chat.ID)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Reg: cannot check is user registered: userID=%d; chatID=%d", msg.From.ID, msg.Chat.ID))
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot check is user registered: userID=%d; chatID=%d", msg.From.ID, msg.Chat.ID))
 	}
 
 	if !isUserRegistered {
@@ -26,10 +26,11 @@ func (i *LenPenBot) Enlarge(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, err
 	}
 
 	today := time.Now().UTC()
+	todayDate := today.Truncate(24 * time.Hour)
 
-	isEnlarge, err := i.store.IsEnlarge(msg.From.ID, msg.Chat.ID, today.Truncate(24 * time.Hour))
+	isEnlarge, err := i.store.IsEnlarge(msg.From.ID, msg.Chat.ID, todayDate)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Reg: cannot check is enlarge: userID=%d; chatID=%d; today=%s", msg.From.ID, msg.Chat.ID, today))
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot check is enlarge: userID=%d; chatID=%d; today=%s", msg.From.ID, msg.Chat.ID, today))
 	}
 
 	if isEnlarge {
@@ -40,7 +41,17 @@ func (i *LenPenBot) Enlarge(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, err
 
 	err = i.store.Enlarge(msg.From.ID, msg.Chat.ID, length, today)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Reg: cannot enlarge: userID=%d; chatID=%d; length=%d; today=%s", msg.From.ID, msg.Chat.ID, length, today))
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot enlarge: userID=%d; chatID=%d; length=%d; today=%s", msg.From.ID, msg.Chat.ID, length, today))
+	}
+
+	err = i.store.UpdateToday(msg.Chat.ID, todayDate)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot update today: chatID=%d; today=%s", msg.Chat.ID, today))
+	}
+
+	err = i.store.UpdateTop(msg.Chat.ID)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot update top: chatID=%d", msg.Chat.ID, today))
 	}
 
 	resp := `Так-так, посмотрим...
