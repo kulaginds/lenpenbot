@@ -26,6 +26,8 @@ type Config struct {
 	ProxyUser     string  `envconfig:"PROXY_USER"`
 	ProxyPassword string  `envconfig:"PROXY_PASSWORD"`
 	DatabaseDSN   string  `envconfig:"DATABASE_DSN"`
+	UseEnvPort    bool    `envconfig:"USE_ENV_PORT"`
+	Port          int     `envconfig:"PORT"`
 }
 
 // MustInitConfig инициализирует и возвращает конфиг иначе при ошибке кидает панику
@@ -108,6 +110,7 @@ func (c *Config) GetProxyUser() string { return c.ProxyUser }
 // GetProxyPassword возвращает пароль пользователя прокси
 func (c *Config) GetProxyPassword() string { return c.ProxyPassword }
 
+// GetDatabaseDSN возвращает dsn для подключения к базе
 func (c *Config) GetDatabaseDSN() string {
 	if c.DatabaseDSN == "" {
 		return "postgres://postgres@localhost:5432/postgres?sslmode=disable"
@@ -115,3 +118,9 @@ func (c *Config) GetDatabaseDSN() string {
 
 	return c.DatabaseDSN
 }
+
+// GetUseEnvPort возвращает флаг нужно ли считывать порт из env-переменной
+func (c *Config) GetUseEnvPort() bool { return c.UseEnvPort }
+
+// GetPort возвращает порт, на котором нужно поднять веб-сервер webhook
+func (c *Config) GetPort() int { return c.Port }

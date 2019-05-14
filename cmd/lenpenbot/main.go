@@ -133,10 +133,16 @@ func webhookMode(cfg *config.Config, bot *tgbotapi.BotAPI) (tgbotapi.UpdatesChan
 	}
 	updates := bot.ListenForWebhook(fmt.Sprintf("/%s", bot.Token))
 
+	address := cfg.GetAddress()
+
+	if cfg.GetUseEnvPort() {
+		address = fmt.Sprintf(":%d", cfg.GetPort())
+	}
+
 	if cfg.GetSSLCert() != "" {
-		go http.ListenAndServeTLS(cfg.GetAddress(), cfg.GetSSLCert(), cfg.GetSSLKey(), nil)
+		go http.ListenAndServeTLS(address, cfg.GetSSLCert(), cfg.GetSSLKey(), nil)
 	} else {
-		go http.ListenAndServe(cfg.GetAddress(), nil)
+		go http.ListenAndServe(address, nil)
 	}
 
 	return updates, nil
