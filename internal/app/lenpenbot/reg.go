@@ -12,7 +12,7 @@ import (
 func (i *LenPenBot) Reg(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, error) {
 	isUserRegistered, err := i.store.IsUserRegistered(msg.From.ID, msg.Chat.ID)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Reg: cannot check is user registered: userID=%d; chatID=%d", msg.From.ID, msg.Chat.ID))
+		return nil, errors.New(fmt.Sprintf("Reg: cannot check is user registered: userID=%d; chatID=%d: %s", msg.From.ID, msg.Chat.ID, err))
 	}
 
 	if isUserRegistered {
