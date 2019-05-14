@@ -3,18 +3,15 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"github.com/kulaginds/lenpenbot/internal/app/lenpenbot"
+	"github.com/kulaginds/lenpenbot/internal/config"
 	"github.com/kulaginds/lenpenbot/pkg/store/pgstore"
+	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/kulaginds/lenpenbot/internal/app/lenpenbot"
-	"github.com/kulaginds/lenpenbot/internal/config"
-	"github.com/kulaginds/lenpenbot/pkg"
-
-	"github.com/go-telegram-bot-api/telegram-bot-api"
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -78,22 +75,20 @@ func main() {
 			msgConf, err = botClient.Start(update.Message)
 			break;
 		case strings.HasPrefix(update.Message.Text, "/reg"):
-			msgConf, err = botClient.Start(update.Message)
+			msgConf, err = botClient.Reg(update.Message)
 			break;
 		case strings.HasPrefix(update.Message.Text, "/enlarge"):
-			msgConf, err = botClient.Start(update.Message)
+			msgConf, err = botClient.Enlarge(update.Message)
 			break;
 		case strings.HasPrefix(update.Message.Text, "/shit"):
-			msgConf, err = botClient.Start(update.Message)
+			msgConf, err = botClient.Shit(update.Message)
 			break;
 		case strings.HasPrefix(update.Message.Text, "/today"):
-			msgConf, err = botClient.Start(update.Message)
+			msgConf, err = botClient.Today(update.Message)
 			break;
 		case strings.HasPrefix(update.Message.Text, "/top"):
-			msgConf, err = botClient.Start(update.Message)
+			msgConf, err = botClient.Top(update.Message)
 			break;
-		default:
-			msgConf = pkg.Reply(update.Message, "Неизвестная команда")
 		}
 
 		if err != nil {
