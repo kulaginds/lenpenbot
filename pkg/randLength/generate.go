@@ -7,5 +7,5 @@ import (
 
 func Generate(min, max int) int {
 	rand.Seed(time.Now().UTC().Unix())
-	return rand.Intn(max - min) + min
+	return rand.Intn(max-min) + min
 }

@@ -2,6 +2,7 @@ package pgstore
 
 import (
 	"database/sql"
+
 	"github.com/kulaginds/lenpenbot/pkg/store"
 )
 

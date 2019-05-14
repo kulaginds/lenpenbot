@@ -3,11 +3,13 @@ package lenpenbot
 import (
 	"errors"
 	"fmt"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
+	"time"
+
 	"github.com/kulaginds/lenpenbot/pkg"
 	"github.com/kulaginds/lenpenbot/pkg/penis"
 	"github.com/kulaginds/lenpenbot/pkg/randLength"
-	"time"
+
+	"github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 const (
@@ -18,7 +20,7 @@ const (
 func (i *LenPenBot) Enlarge(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, error) {
 	isUserRegistered, err := i.store.IsUserRegistered(msg.From.ID, msg.Chat.ID)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Enlarge: cannot check is user registered: userID=%d; chatID=%d", msg.From.ID, msg.Chat.ID))
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot check is user registered: userID=%d; chatID=%d: %s", msg.From.ID, msg.Chat.ID, err))
 	}
 
 	if !isUserRegistered {
@@ -30,7 +32,7 @@ func (i *LenPenBot) Enlarge(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, err
 
 	isEnlarge, err := i.store.IsEnlarge(msg.From.ID, msg.Chat.ID, todayDate)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Enlarge: cannot check is enlarge: userID=%d; chatID=%d; today=%s", msg.From.ID, msg.Chat.ID, today))
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot check is enlarge: userID=%d; chatID=%d; today=%s: %s", msg.From.ID, msg.Chat.ID, today, err))
 	}
 
 	if isEnlarge {
@@ -41,17 +43,27 @@ func (i *LenPenBot) Enlarge(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, err
 
 	err = i.store.Enlarge(msg.From.ID, msg.Chat.ID, length, today)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Enlarge: cannot enlarge: userID=%d; chatID=%d; length=%d; today=%s", msg.From.ID, msg.Chat.ID, length, today))
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot enlarge: userID=%d; chatID=%d; length=%d; today=%s: %s", msg.From.ID, msg.Chat.ID, length, today, err))
 	}
 
-	err = i.store.UpdateToday(msg.Chat.ID, todayDate)
+	todayTop, err := i.top.GenerateToday(msg.Chat.ID, todayDate)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Enlarge: cannot update today: chatID=%d; today=%s", msg.Chat.ID, today))
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot generate today: chatID=%d; today=%s: %s", msg.Chat.ID, today, err))
 	}
 
-	err = i.store.UpdateTop(msg.Chat.ID)
+	err = i.store.SetToday(msg.Chat.ID, todayDate, todayTop)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Enlarge: cannot update top: chatID=%d", msg.Chat.ID, today))
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot set today: chatID=%d; today=%s: %s", msg.Chat.ID, today, err))
+	}
+
+	topTop, err := i.top.GenerateTop(msg.Chat.ID)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot generate top: chatID=%d: %s", msg.Chat.ID, err))
+	}
+
+	err = i.store.SetTop(msg.Chat.ID, topTop)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("Enlarge: cannot set top: chatID=%d: %s", msg.Chat.ID, today, err))
 	}
 
 	resp := `Так-так, посмотрим...

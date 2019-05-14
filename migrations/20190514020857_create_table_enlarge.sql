@@ -7,7 +7,7 @@ create table enlarge
     length int default 1 not null,
     created TIMESTAMP default CURRENT_TIMESTAMP,
     constraint enlarge_pk
-        primary key (user_id, chat_id)
+        primary key (user_id, chat_id, created)
 );
 -- +goose StatementEnd
 

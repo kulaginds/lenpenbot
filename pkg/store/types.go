@@ -22,9 +22,11 @@ const (
 )
 
 type Top struct {
-	ChatID  int64   `db:"chat_id"`
-	Type    TopType `db:"type"`
-	Message string  `db:"message"`
+	ChatID  int64     `db:"chat_id"`
+	Type    TopType   `db:"type"`
+	Message string    `db:"message"`
+	Updated time.Time `db:"updated"`
+	Created time.Time `db:"created"`
 }
 
 type Credit struct {

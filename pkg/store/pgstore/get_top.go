@@ -28,7 +28,7 @@ func (s *PGStore) GetTop(chatID int64) (*store.Top, error) {
 		return nil, errors.New(fmt.Sprintf("GetTop: no top: chatID=%d", chatID))
 	}
 
-	err = rows.Scan(top)
+	err = rows.Scan(&top.ChatID, &top.Type, &top.Message, &top.Updated, &top.Created)
 	if err != nil {
 		return nil, err
 	}

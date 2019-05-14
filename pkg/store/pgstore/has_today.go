@@ -1,8 +1,9 @@
 package pgstore
 
 import (
-	"github.com/kulaginds/lenpenbot/pkg/store"
 	"time"
+
+	"github.com/kulaginds/lenpenbot/pkg/store"
 )
 
 func (s *PGStore) HasToday(chatID int64, updatedMin, updatedMax time.Time) (bool, error) {

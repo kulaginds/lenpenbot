@@ -31,7 +31,7 @@ func (s *PGStore) GetToday(chatID int64, today time.Time) (*store.Top, error) {
 		return nil, errors.New(fmt.Sprintf("GetToday: no today top: chatID=%d; updated=%s", chatID, today))
 	}
 
-	err = rows.Scan(top)
+	err = rows.Scan(&top.ChatID, &top.Type, &top.Message, &top.Updated, &top.Created)
 	if err != nil {
 		return nil, err
 	}

@@ -3,15 +3,18 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/kulaginds/lenpenbot/internal/app/lenpenbot"
-	"github.com/kulaginds/lenpenbot/internal/config"
-	"github.com/kulaginds/lenpenbot/pkg/store/pgstore"
-	_ "github.com/lib/pq"
 	"log"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/kulaginds/lenpenbot/internal/app/lenpenbot"
+	"github.com/kulaginds/lenpenbot/internal/config"
+	"github.com/kulaginds/lenpenbot/pkg/store/pgstore"
+	top2 "github.com/kulaginds/lenpenbot/pkg/top"
+
+	"github.com/go-telegram-bot-api/telegram-bot-api"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -25,7 +28,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		proxyUrl.User = url.UserPassword("order@ruskyhost.ru", "login911##")
+		proxyUrl.User = url.UserPassword(cfg.GetProxyUser(), cfg.GetProxyPassword())
 
 		httpClient = &http.Client{
 			Transport: &http.Transport{
@@ -41,7 +44,7 @@ func main() {
 
 	bot.Debug = cfg.GetDebug()
 
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	log.Printf("Authorized on account %s (%d)", bot.Self.UserName, bot.Self.ID)
 
 	var updates tgbotapi.UpdatesChannel
 
@@ -60,8 +63,9 @@ func main() {
 	}
 
 	store := pgstore.NewPGStore(dbConn)
+	top := top2.NewTop(bot, store)
 
-	botClient := lenpenbot.NewLenPenBot(bot, store)
+	botClient := lenpenbot.NewLenPenBot(bot, store, top)
 
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates

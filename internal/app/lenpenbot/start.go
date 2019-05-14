@@ -12,7 +12,6 @@ func (i *LenPenBot) Start(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, error
 Доступные команды:
 /reg - зарегистрироваться в измерениях
 /enlarge - измерить
-/shit - поднасрать
 /top - топ за все время
 /today - топ за сегодня
 /credit - сантиметры в кредит`
