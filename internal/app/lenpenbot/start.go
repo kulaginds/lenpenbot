@@ -13,7 +13,6 @@ func (i *LenPenBot) Start(msg *tgbotapi.Message) (*tgbotapi.MessageConfig, error
 /reg - зарегистрироваться в измерениях
 /enlarge - измерить
 /top - топ за все время
-/today - топ за сегодня
-/credit - сантиметры в кредит`
+/today - топ за сегодня`
 	return pkg.Reply(msg, helloMessage), nil
 }
