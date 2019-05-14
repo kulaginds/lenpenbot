@@ -78,7 +78,7 @@ func (c *Config) GetUpdateTimeout() int {
 // GetAddress возвращает адрес для запуска webhook-сервера
 func (c *Config) GetAddress() string {
 	if c.Address == "" {
-		return "0.0.0.0:443"
+		return "0.0.0.0:80"
 	}
 
 	return c.Address
