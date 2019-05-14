@@ -15,6 +15,7 @@ import (
 
 	"github.com/go-telegram-bot-api/telegram-bot-api"
 	_ "github.com/lib/pq"
+	"github.com/pressly/goose"
 )
 
 func main() {
@@ -66,6 +67,11 @@ func main() {
 	top := top2.NewTop(bot, store)
 
 	botClient := lenpenbot.NewLenPenBot(bot, store, top)
+
+	err = goose.Up(dbConn, "migrations")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for update := range updates {
 		if update.Message == nil { // ignore any non-Message Updates
