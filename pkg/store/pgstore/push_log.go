@@ -13,8 +13,8 @@ func (s *PGStore) PushLog(text string) error {
 		text = text[:TextMaxLength]
 	}
 	_, err := s.db.Exec(`
-		INSERT INTO "log" (id, text, created)
-		VALUES (NULL, $1, $2)`,
+		INSERT INTO "log" (text, created)
+		VALUES ($1, $2)`,
 		text,
 		time.Now().UTC(),
 	)
