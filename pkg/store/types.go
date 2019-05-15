@@ -37,3 +37,8 @@ type Credit struct {
 	Repaid   bool      `db:"repaid"`
 	Created  time.Time `db:"created"`
 }
+
+type Log struct {
+	ID   int64  `db:"id"`
+	Text string `db:"text"`
+}

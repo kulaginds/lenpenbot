@@ -19,4 +19,6 @@ type Store interface {
 	UpdateTop(chatID int64, top string) error
 	SetToday(chatID int64, today time.Time, todayTop string) error
 	SetTop(chatID int64, top string) error
+
+	PushLog(text string) error
 }
