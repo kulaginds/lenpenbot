@@ -21,11 +21,22 @@ import (
 func main() {
 	cfg := config.MustInitConfig()
 
+	dbConn, err := sql.Open("postgres", cfg.GetDatabaseDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	store := pgstore.NewPGStore(dbConn)
+
 	httpClient := &http.Client{}
 
 	if cfg.GetProxyHost() != "" {
 		proxyUrl, err := url.Parse(fmt.Sprintf("%s://%s", cfg.GetProxyProtocol(), cfg.GetProxyHost()))
 		if err != nil {
+			err2 := store.PushLog(err.Error())
+			if err2 != nil {
+				err = err2
+			}
 			log.Fatal(err)
 		}
 
@@ -40,6 +51,10 @@ func main() {
 
 	bot, err := tgbotapi.NewBotAPIWithClient(cfg.GetToken(), httpClient)
 	if err != nil {
+		err2 := store.PushLog(err.Error())
+		if err2 != nil {
+			err = err2
+		}
 		log.Fatal(err)
 	}
 
@@ -52,24 +67,26 @@ func main() {
 	if cfg.GetMode() == config.BotModeWebhook {
 		updates, err = webhookMode(cfg, bot)
 		if err != nil {
+			err2 := store.PushLog(err.Error())
+			if err2 != nil {
+				err = err2
+			}
 			log.Fatal(err)
 		}
 	} else {
 		updates = longPollMode(cfg, bot)
 	}
 
-	dbConn, err := sql.Open("postgres", cfg.GetDatabaseDSN())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	store := pgstore.NewPGStore(dbConn)
 	top := top2.NewTop(bot, store)
 
 	botClient := lenpenbot.NewLenPenBot(bot, store, top)
 
 	err = goose.Up(dbConn, "migrations")
 	if err != nil {
+		err2 := store.PushLog(err.Error())
+		if err2 != nil {
+			err = err2
+		}
 		log.Fatal(err)
 	}
 
@@ -102,6 +119,10 @@ func main() {
 		}
 
 		if err != nil {
+			err2 := store.PushLog(err.Error())
+			if err2 != nil {
+				err = err2
+			}
 			log.Println(err)
 			continue
 		}
@@ -109,6 +130,10 @@ func main() {
 		if msgConf != nil {
 			_, err := bot.Send(msgConf)
 			if err != nil {
+				err2 := store.PushLog(err.Error())
+				if err2 != nil {
+					err = err2
+				}
 				log.Println(err)
 			}
 		}
